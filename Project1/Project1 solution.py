@@ -55,16 +55,22 @@ class Robot:
 
     def take_order(self):
         where_to_go = {
-            0: self.go_west(),
-            1: self.go_east(),
-            2: self.go_north(),
-            3: self.go_south(),
+            0: self.go_west,
+            1: self.go_east,
+            2: self.go_north,
+            3: self.go_south,
         }
-        peak_all_directions = [self.peak_west(), self.peak_east(), self.peak_north(), self.peak_south()]
+        self.position = [0, 0]
         self.not_passed.remove(self.position)
         for order in self.orders:
             shelves_to_go = [''.join(list(shelf.keys())) for shelf in order]
+            move = 0
             while self.items != order:  # Until the robot picked up all items in an order
+                print(f'Move: {move}')
+                peak_all_directions = [self.peak_west(), self.peak_east(), self.peak_north(), self.peak_south()]
+                peak_all_directions = [i for i in peak_all_directions if i]
+                print(f'peak_all_directions: {peak_all_directions}')
+                # print(f'peak_all_directions: {peak_all_directions}')
                 # Look around to see how many surrounding shelves have the item in the order
                 if self.peak_west() and self.warehouse[self.peak_west()[0]][self.peak_west()[1]] in shelves_to_go:
                     self.around[0] = 1
@@ -77,36 +83,48 @@ class Robot:
 
                 # Determine the direction to move
                 if sum(self.around) == 0:
-                    next_location = random.choice(peak_all_directions)
-                    print(f'nex location before while loop: {next_location}')
-                    
-                    while self.warehouse[next_location[0]][next_location[1]] not in self.not_passed:
-                        next_location = random.choice(peak_all_directions)
-                        # print(f'nex location in while loop: {next_location}')
-                    self.position = [next_location]
-                    # print(f'nex location after while loop: {next_location}')
+                    next_location = list(random.choice(peak_all_directions))
+                    print(f'next location before while loop: {next_location}')
+                    # print(f'Not passed: {self.not_passed}')
+                    while next_location not in self.not_passed:
+                        next_location = list(random.choice(peak_all_directions))
+                        # print(f'next location in while loop: {next_location}')
+                    # print(f'next location after while loop: {next_location}')
+                    self.position = next_location
+                    print(f'Current position: {self.position}')
                     self.score -= 1
 
                 elif sum(self.around) == 1:
                     # Find the index of the only grid square and move to that only grid square
-                    where_to_go[self.around.index(1)]
+                    where_to_go[self.around.index(1)]()
+                    print(f'== 1 Current position: {self.position}')
                     self.score += 3
 
                 elif sum(self.around) > 1:
                     # make a random choice between the positions involved
                     index_of_directions = [i for i, v in enumerate(self.around) if v == 1]
-                    where_to_go[random.choice(index_of_directions)]
+                    where_to_go[random.choice(index_of_directions)]()
+                    print(f'> 1 Current position: {self.position}')
                     self.score += 3
 
                 # Update the locations that the robot has passed
+                print(f'not passed: {self.not_passed}')
+                print(f'position: {self.position}')
                 self.not_passed.remove(self.position)
+
+                print(type(self.position[0]))
 
                 # Determine what shelf it is
                 name_of_shelf = self.warehouse[self.position[0]][self.position[1]]
+                # print(f'name of shelf: {name_of_shelf}, order[name_of_shelf].items(): {order[name_of_shelf].items()}')
 
                 # Pick up all items in the order that belong to a shelf
                 for code, quantity in order[name_of_shelf].items():
                     self.items[code] = quantity
+
+                # Reset around
+                self.around = [0, 0, 0, 0]
+                move += 1
         print(self.score)
 
 '''
@@ -136,4 +154,5 @@ warehouse = [[0, 0, 'D', 0, 0, 0], [0, 'A', 0, 0, 'G', 0], ['E', 0, 'B', 0, 'I',
              [0, 'C', 0, 0, 0, 0], [0, 0, 'F', 0, 0, 'H'], [0, 0, 0, 'J', 0, 0]]
 # avg_score = 0
 robot = Robot(warehouse, orders)
+print(robot.position)
 robot.take_order()
