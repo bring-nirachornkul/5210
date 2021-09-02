@@ -1,19 +1,39 @@
 import random
+import math
 import numpy as np
 
 
 class Robot:
 
-    # Initialize a robot with the ware house map, a list of all orders,
-    #   a record of the all squares that the robot has moved in,
-    #   the items of an order that the robot has picked
-    #   and all grids around the robot: w, e, n, s
-    def __init__(self, a_ware_house: list, order: list, items=dict(), score=0, around=[0, 0, 0, 0]):
+    """
+    A class to represent a person.
+
+    ...
+
+    Attributes
+    ----------
+        warehouse: 2d array
+            the ware house map
+        order: list
+            leftover items in the orders
+        items: dict
+            items that the robot has collected so far
+        path: list
+            the path the robot has followed,
+        score: int
+            if the robot goes to a grid square that does not have the ordered item: -1 else + 3
+        around: list
+            an array of length 4 representing the shelf that has the ordered item in corresponding
+            to direction next to the robot in the pattern west / east / north / south
+    """
+
+    def __init__(self, a_ware_house: list, order: list, items=dict(), around=[0, 0, 0, 0], path=[], score=0):
         self.warehouse = a_ware_house
         self.order = order
         self.items = items
-        self.score = score
         self.around = around
+        self.path = path
+        self.score = score
         self.rpos = 0
         self.cpos = 0
         self.not_passed = [[row, col] for row in range(len(self.warehouse)) for col in range(len(self.warehouse[0]))]
@@ -54,7 +74,7 @@ class Robot:
         # Robot picks all items in a shelf that is included in an order
         self.items[item] = quantity
 
-    def take_order(self):
+    def proceed_order(self):
         where_to_go = {
             0: self.go_west,
             1: self.go_east,
@@ -62,6 +82,7 @@ class Robot:
             3: self.go_south,
         }
         self.rpos = self.cpos = 0
+        self.path.append([self.rpos, self.cpos])
         self.not_passed.remove([self.rpos, self.cpos])
         shelves_to_go = [''.join(list(shelf.keys())) for shelf in self.order]
         print(f'shelves_to_go: {shelves_to_go}')
@@ -118,6 +139,7 @@ class Robot:
             # Update the locations that the robot has passed
             # print(f'not passed: {self.not_passed}')
             self.not_passed.remove([self.rpos, self.cpos])
+            self.path.append([self.rpos, self.cpos])
 
             # Determine what shelf it is
             name_of_shelf = self.warehouse[self.rpos, self.cpos]
@@ -139,6 +161,7 @@ class Robot:
             print(f'score: {self.score}')
             print()
 
+
 '''
 This is an example of the list of all orders
     Data structure: list of dict of dict
@@ -150,7 +173,7 @@ This is an example of the list of all orders
             key: the code of the item in the shelf
             value: the amount of the items in the order
 '''
-orders = [{'A': {'ISFS': 3, 'IJAY9A': 2}}, {'B': {'9FUSF': 1, '9KJC3': 2}}, {'C': {'89ADA': 1, 'F9S9': 9}}]
+order = [{'A': {'ISFS': 3, 'IJAY9A': 2}}, {'B': {'9FUSF': 1, '9KJC3': 2}}, {'C': {'89ADA': 1, 'F9S9': 9}}]
 
 '''
 This is an example of a map of a ware house 
@@ -161,6 +184,21 @@ This is an example of a map of a ware house
 '''
 warehouse = np.array([[0, 0, 'D', 0, 0, 0], [0, 'A', 0, 0, 'G', 0], ['E', 0, 'B', 0, 'I', 0],
                      [0, 'C', 0, 0, 0, 0], [0, 0, 'F', 0, 0, 'H'], [0, 0, 0, 'J', 0, 0]])
-# avg_score = 0
-robot = Robot(warehouse, orders)
-robot.take_order()
+avg_score = 0
+shortest_path = longest_path = []
+min_score = math.inf
+max_score = -math.inf
+for _ in range(1000):
+    robot = Robot(warehouse, order)
+    robot.proceed_order()
+    if min_score > robot.score:
+        min_score = robot.score
+        shortest_path = self.path
+    if max_score < robot.score:
+        max_score = robot.score
+        longest_path = robot.path
+    avg_score += robot.score
+avg_score /= 1000
+print(f'Average score after 1000 episodes is {avg_score}')
+print(f'The shortest path is {shortest_path} with {min_score} points')
+print(f'The longest path is {longest_path} with {max_score} points')
