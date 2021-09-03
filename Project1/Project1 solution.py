@@ -36,7 +36,6 @@ class Robot:
         self.score = score
         self.rpos = 0
         self.cpos = 0
-        self.not_passed = [[row, col] for row in range(len(self.warehouse)) for col in range(len(self.warehouse[0]))]
 
     def go_west(self):
         if self.cpos > 0:
@@ -83,15 +82,15 @@ class Robot:
         }
         self.rpos = self.cpos = 0
         self.path.append([self.rpos, self.cpos])
-        self.not_passed.remove([self.rpos, self.cpos])
         shelves_to_go = [''.join(list(shelf.keys())) for shelf in self.order]
-        print(f'shelves_to_go: {shelves_to_go}')
         move = 0
-        while self.order:  # Until the robot picked up all items in an order
+        while shelves_to_go:  # Until the robot picked up all items in an order
+            print(f'shelves_to_go: {shelves_to_go}')
             print(f'Move: {move}')
+            print(f'Current position: {self.rpos, self.cpos}')
             peak_all_directions = [[self.rpos, self.peak_west()], [self.rpos, self.peak_east()],
                                    [self.peak_north(), self.cpos], [self.peak_south(), self.cpos]]
-            peak_all_directions = [i for i in peak_all_directions if None not in i and i in self.not_passed]
+            peak_all_directions = [i for i in peak_all_directions if None not in i]
             print(f'peak_all_directions: {peak_all_directions}')
             # print(f'peak_all_directions: {peak_all_directions}')
             # Scan around to see how many surrounding shelves have the item in the order
@@ -112,33 +111,24 @@ class Robot:
 
             # Determine the direction to move
             if sum(self.around) == 0:
-                next_location = list(random.choice(peak_all_directions))
-                print(f'next location before while loop: {next_location}')
-                # print(f'Not passed: {self.not_passed}')
-                while next_location not in self.not_passed:
-                    next_location = list(random.choice(peak_all_directions))
-                    # print(f'next location in while loop: {next_location}')
-                # print(f'next location after while loop: {next_location}')
-                self.rpos, self.cpos = next_location
-                print(f'Current position: {self.rpos, self.cpos}')
+                self.rpos, self.cpos = random.choice(peak_all_directions)
+                print(f'Current position after choice: {self.rpos, self.cpos}')
                 self.score -= 1
 
             elif sum(self.around) == 1:
                 # Find the index of the only grid square and move to that only grid square
                 where_to_go[self.around.index(1)]()
-                print(f'== 1 Current position: {self.rpos, self.cpos}')
+                print(f'== 1 Current position after choice: {self.rpos, self.cpos}')
                 self.score += 3
 
             elif sum(self.around) > 1:
                 # make a random choice between the positions involved
                 index_of_directions = [i for i, v in enumerate(self.around) if v == 1]
                 where_to_go[random.choice(index_of_directions)]()
-                print(f'> 1 Current position: {self.rpos, self.cpos}')
+                print(f'> 1 Current position after choice: {self.rpos, self.cpos}')
                 self.score += 3
 
-            # Update the locations that the robot has passed
-            # print(f'not passed: {self.not_passed}')
-            self.not_passed.remove([self.rpos, self.cpos])
+            # Update the locations that the robot has followed so far
             self.path.append([self.rpos, self.cpos])
 
             # Determine what shelf it is
@@ -152,9 +142,7 @@ class Robot:
                         print(f'sub_order[name_of_shelf]: {sub_order[name_of_shelf]}')
                         for code, quantity in sub_order[name_of_shelf].items():
                             self.get_items(code, quantity)
-                        self.order.remove(sub_order)
                         shelves_to_go.remove(name_of_shelf)
-                        print(f'Updated order: {self.order}')
             # Reset around
             self.around = [0, 0, 0, 0]
             move += 1
@@ -185,20 +173,24 @@ This is an example of a map of a ware house
 warehouse = np.array([[0, 0, 'D', 0, 0, 0], [0, 'A', 0, 0, 'G', 0], ['E', 0, 'B', 0, 'I', 0],
                      [0, 'C', 0, 0, 0, 0], [0, 0, 'F', 0, 0, 'H'], [0, 0, 0, 'J', 0, 0]])
 avg_score = 0
-shortest_path = longest_path = []
+shortest_path, longest_path = [], []
 min_score = math.inf
 max_score = -math.inf
-for _ in range(1000):
+episodes = 10
+for episode in range(episodes):
+    print(f'Episode {episode}')
     robot = Robot(warehouse, order)
     robot.proceed_order()
     if min_score > robot.score:
         min_score = robot.score
-        shortest_path = self.path
+        shortest_path = robot.path[:]
     if max_score < robot.score:
         max_score = robot.score
-        longest_path = robot.path
+        longest_path = robot.path[:]
     avg_score += robot.score
-avg_score /= 1000
-print(f'Average score after 1000 episodes is {avg_score}')
+avg_score /= episodes
+print(f'Average score after {episodes} episodes is {avg_score}')
+print(f'Min score is : {min_score}')
+print(f'Max score is : {max_score}')
 print(f'The shortest path is {shortest_path} with {min_score} points')
 print(f'The longest path is {longest_path} with {max_score} points')
