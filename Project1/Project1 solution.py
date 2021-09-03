@@ -1,10 +1,10 @@
 import random
 import math
+from faker import Faker
 import numpy as np
 
 
 class Robot:
-
     """
     A class to represent a person.
 
@@ -27,9 +27,9 @@ class Robot:
             to direction next to the robot in the pattern west / east / north / south
     """
 
-    def __init__(self, a_ware_house: list, order: list, items=dict(), around=[0, 0, 0, 0], path=[], score=0):
+    def __init__(self, a_ware_house: list, an_order: list, items=dict(), around=[0, 0, 0, 0], path=[], score=0):
         self.warehouse = a_ware_house
-        self.order = order
+        self.order = an_order
         self.items = items
         self.around = around
         self.path = path
@@ -82,50 +82,50 @@ class Robot:
         }
         self.rpos = self.cpos = 0
         self.path.append([self.rpos, self.cpos])
-        shelves_to_go = [''.join(list(shelf.keys())) for shelf in self.order]
+        shelves_to_go = sorted(sorted(i[0] for i in self.order))
         move = 0
         while shelves_to_go:  # Until the robot picked up all items in an order
-            print(f'shelves_to_go: {shelves_to_go}')
-            print(f'Move: {move}')
-            print(f'Current position: {self.rpos, self.cpos}')
+            # print(f'shelves_to_go: {shelves_to_go}')
+            # print(f'Move: {move}')
+            # print(f'Current position: {self.rpos, self.cpos}')
             peak_all_directions = [[self.rpos, self.peak_west()], [self.rpos, self.peak_east()],
                                    [self.peak_north(), self.cpos], [self.peak_south(), self.cpos]]
             peak_all_directions = [i for i in peak_all_directions if None not in i]
-            print(f'peak_all_directions: {peak_all_directions}')
             # print(f'peak_all_directions: {peak_all_directions}')
+
             # Scan around to see how many surrounding shelves have the item in the order
             if self.peak_west() and self.warehouse[self.rpos, self.peak_west()] in shelves_to_go:
-                print(f'around 0 : {self.warehouse[self.rpos, self.peak_west()]}')
+                # print(f'around 0 : {self.warehouse[self.rpos, self.peak_west()]}')
                 self.around[0] = 1
             if self.peak_east() and self.warehouse[self.rpos, self.peak_east()] in shelves_to_go:
-                print(f'around 1 : {self.warehouse[self.rpos, self.peak_east()]}')
+                # print(f'around 1 : {self.warehouse[self.rpos, self.peak_east()]}')
                 self.around[1] = 1
             if self.peak_north() and self.warehouse[self.peak_north(), self.cpos] in shelves_to_go:
-                print(f'around 2 : {self.warehouse[self.peak_north(), self.cpos]}')
+                # print(f'around 2 : {self.warehouse[self.peak_north(), self.cpos]}')
                 self.around[2] = 1
             if self.peak_south() and self.warehouse[self.peak_south(), self.cpos] in shelves_to_go:
-                print(f'around 3 : {self.warehouse[self.peak_south(), self.cpos]}')
+                # print(f'around 3 : {self.warehouse[self.peak_south(), self.cpos]}')
                 self.around[3] = 1
 
-            print(f'self.around: {self.around}')
+            # print(f'self.around: {self.around}')
 
             # Determine the direction to move
             if sum(self.around) == 0:
                 self.rpos, self.cpos = random.choice(peak_all_directions)
-                print(f'Current position after choice: {self.rpos, self.cpos}')
+                # print(f'Current position after choice: {self.rpos, self.cpos}')
                 self.score -= 1
 
             elif sum(self.around) == 1:
                 # Find the index of the only grid square and move to that only grid square
                 where_to_go[self.around.index(1)]()
-                print(f'== 1 Current position after choice: {self.rpos, self.cpos}')
+                # print(f'== 1 Current position after choice: {self.rpos, self.cpos}')
                 self.score += 3
 
             elif sum(self.around) > 1:
                 # make a random choice between the positions involved
                 index_of_directions = [i for i, v in enumerate(self.around) if v == 1]
                 where_to_go[random.choice(index_of_directions)]()
-                print(f'> 1 Current position after choice: {self.rpos, self.cpos}')
+                # print(f'> 1 Current position after choice: {self.rpos, self.cpos}')
                 self.score += 3
 
             # Update the locations that the robot has followed so far
@@ -134,34 +134,21 @@ class Robot:
             # Determine what shelf it is
             name_of_shelf = self.warehouse[self.rpos, self.cpos]
             if name_of_shelf.isalpha() and name_of_shelf in shelves_to_go:
-                print(f'name of shelf: {name_of_shelf}')
-                print(f'order: {self.order}')
+                # print(f'name of shelf: {name_of_shelf}')
+                # print(f'order: {self.order}')
                 # Pick up all items in the order that belong to a shelf
-                for sub_order in self.order:
-                    if name_of_shelf in sub_order:
-                        print(f'sub_order[name_of_shelf]: {sub_order[name_of_shelf]}')
-                        for code, quantity in sub_order[name_of_shelf].items():
+                for shelf, details in self.order:
+                    if shelf == name_of_shelf:
+                        # print(f'sub_order[name_of_shelf]: {sub_order[name_of_shelf]}')
+                        for code, quantity in details:
                             self.get_items(code, quantity)
                         shelves_to_go.remove(name_of_shelf)
             # Reset around
             self.around = [0, 0, 0, 0]
             move += 1
-            print(f'score: {self.score}')
-            print()
+            # print(f'score: {self.score}')
+            # print()
 
-
-'''
-This is an example of the list of all orders
-    Data structure: list of dict of dict
-        The first dict:
-        Data structure: Dict of dict
-        key: name of the shelf
-        value: a dictionary that represents all items that can be found in a shelf
-            Data structure: Dict
-            key: the code of the item in the shelf
-            value: the amount of the items in the order
-'''
-order = [{'A': {'ISFS': 3, 'IJAY9A': 2}}, {'B': {'9FUSF': 1, '9KJC3': 2}}, {'C': {'89ADA': 1, 'F9S9': 9}}]
 
 '''
 This is an example of a map of a ware house 
@@ -170,27 +157,59 @@ This is an example of a map of a ware house
     0 represents no shelf
     A capital letter represents the name of the shelf
 '''
-warehouse = np.array([[0, 0, 'D', 0, 0, 0], [0, 'A', 0, 0, 'G', 0], ['E', 0, 'B', 0, 'I', 0],
-                     [0, 'C', 0, 0, 0, 0], [0, 0, 'F', 0, 0, 'H'], [0, 0, 0, 'J', 0, 0]])
-avg_score = 0
-shortest_path, longest_path = [], []
-min_score = math.inf
-max_score = -math.inf
-episodes = 10
-for episode in range(episodes):
-    print(f'Episode {episode}')
-    robot = Robot(warehouse, order)
-    robot.proceed_order()
-    if min_score > robot.score:
-        min_score = robot.score
-        shortest_path = robot.path[:]
-    if max_score < robot.score:
-        max_score = robot.score
-        longest_path = robot.path[:]
-    avg_score += robot.score
-avg_score /= episodes
-print(f'Average score after {episodes} episodes is {avg_score}')
-print(f'Min score is : {min_score}')
-print(f'Max score is : {max_score}')
-print(f'The shortest path is {shortest_path} with {min_score} points')
-print(f'The longest path is {longest_path} with {max_score} points')
+
+
+def create_fake_order(warehouse_map, number_of_shelf: int, number_of_items_in_a_shelf: int):
+    """
+    This function creates a fake order with
+        Data structure: list
+            The first layer
+            Data structure: tuple
+                Shelf: The name of the shelf
+                Details: It contains all items that can be found in the specific shelf
+                    Data structure: list of tuples
+                    Each tuple has:
+                        Code of the item
+                        Quantity of the item
+    """
+    faker = Faker()
+    all_shelves = ''.join(element for row in warehouse1 for element in row if element.isalpha())
+    order_shelves = sorted(random.sample(all_shelves, number_of_shelf))
+    my_order = []
+    for shelf in order_shelves:
+        my_order.append(
+            (shelf, [(faker.ean(length=13), random.randint(1, 5)) for _ in range(number_of_items_in_a_shelf)]))
+    return my_order
+
+
+def try_warehouses(warehouse, episodes=1000):
+    avg_score = 0
+    shortest_path, longest_path = [], []
+    min_score = math.inf
+    max_score = -math.inf
+    for episode in range(episodes):
+        # print(f'Episode {episode}')
+        robot = Robot(warehouse,
+                      create_fake_order(warehouse_map=warehouse, number_of_shelf=5, number_of_items_in_a_shelf=3))
+        robot.proceed_order()
+        if min_score > robot.score:
+            min_score = robot.score
+            shortest_path = robot.path[:]
+        if max_score < robot.score:
+            max_score = robot.score
+            longest_path = robot.path[:]
+        avg_score += robot.score
+    avg_score /= episodes
+    print(f'Average score after {episodes} episodes is {avg_score}')
+    print(f'Min score is : {min_score}')
+    print(f'Max score is : {max_score}')
+    print(f'The shortest path is {shortest_path} with {min_score} points')
+    print(f'The longest path is {longest_path} with {max_score} points')
+
+
+warehouse1 = np.array([[0, 0, 'D', 0, 0, 0], [0, 'A', 0, 0, 'G', 0], ['E', 0, 'B', 0, 'I', 0],
+                       [0, 'C', 0, 0, 0, 0], [0, 0, 'F', 0, 0, 'H'], [0, 0, 0, 'J', 0, 0]])
+warehouse2 = np.array([[0, 0, 'A', 0, 'P', 0], ['D', 0, 'B', 0, 'M', 0], ['E', 0, 'F', 0, 'K', 0],
+                       ['C', 0, 'H', 0, 0, 'O'], ['G', 0, 'J', 0, 0, 'Q'], ['I', 0, 0, 0, 'N', 0]])
+try_warehouses(warehouse1, 1)
+# try_warehouses(warehouse2)
