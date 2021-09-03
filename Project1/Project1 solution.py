@@ -94,7 +94,7 @@ class Robot:
             peak_all_directions = [i for i in peak_all_directions if None not in i and i in self.not_passed]
             print(f'peak_all_directions: {peak_all_directions}')
             # print(f'peak_all_directions: {peak_all_directions}')
-            # Look around to see how many surrounding shelves have the item in the order
+            # Scan around to see how many surrounding shelves have the item in the order
             if self.peak_west() and self.warehouse[self.rpos, self.peak_west()] in shelves_to_go:
                 print(f'around 0 : {self.warehouse[self.rpos, self.peak_west()]}')
                 self.around[0] = 1
@@ -151,7 +151,7 @@ class Robot:
                     if name_of_shelf in sub_order:
                         print(f'sub_order[name_of_shelf]: {sub_order[name_of_shelf]}')
                         for code, quantity in sub_order[name_of_shelf].items():
-                            self.items[code] = quantity
+                            self.get_items(code, quantity)
                         self.order.remove(sub_order)
                         shelves_to_go.remove(name_of_shelf)
                         print(f'Updated order: {self.order}')
