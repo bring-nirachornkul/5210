@@ -7,9 +7,7 @@ import numpy as np
 class Robot:
     """
     A class to represent a person.
-
     ...
-
     Attributes
     ----------
         warehouse: 2d array
@@ -150,15 +148,6 @@ class Robot:
             # print()
 
 
-'''
-This is an example of a map of a ware house 
-    Data structure: 2D array
-    Size: 6x6
-    0 represents no shelf
-    A capital letter represents the name of the shelf
-'''
-
-
 def create_fake_order(warehouse_map, number_of_shelf: int, number_of_items_in_a_shelf: int):
     """
     This function creates a fake order with
@@ -206,6 +195,14 @@ def try_warehouses(warehouse, episodes=1000):
     print(f'The shortest path is {shortest_path} with {min_score} points')
     print(f'The longest path is {longest_path} with {max_score} points')
 
+
+'''
+This is an example of a map of a ware house 
+    Data structure: 2D array
+    Size: 6x6
+    0 represents no shelf
+    A capital letter represents the name of the shelf
+'''
 
 warehouse1 = np.array([[0, 0, 'D', 0, 0, 0], [0, 'A', 0, 0, 'G', 0], ['E', 0, 'B', 0, 'I', 0],
                        [0, 'C', 0, 0, 0, 0], [0, 0, 'F', 0, 0, 'H'], [0, 0, 0, 'J', 0, 0]])
