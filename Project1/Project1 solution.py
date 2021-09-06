@@ -148,7 +148,7 @@ class Robot:
             # print()
 
 
-def create_fake_order(warehouse_map, number_of_shelf: int, number_of_items_in_a_shelf: int):
+def create_fake_order(warehouse_map, number_of_shelf: int, number_of_items_in_a_shelf: int, random_quantity=5):
     """
     This function creates a fake order with
         Data structure: list
@@ -159,15 +159,22 @@ def create_fake_order(warehouse_map, number_of_shelf: int, number_of_items_in_a_
                     Data structure: list of tuples
                     Each tuple has:
                         Code of the item
-                        Quantity of the item
+                        Quantity of the item as a random number from 1 to random_quantity
     """
+
     faker = Faker()
+
+    # Extract all shelves from the warehouse map
     all_shelves = ''.join(element for row in warehouse1 for element in row if element.isalpha())
+
+    # Create a list of random number_of_shelf shelves out of all_shelves lexicographically
     order_shelves = sorted(random.sample(all_shelves, number_of_shelf))
+
     my_order = []
     for shelf in order_shelves:
         my_order.append(
-            (shelf, [(faker.ean(length=13), random.randint(1, 5)) for _ in range(number_of_items_in_a_shelf)]))
+            (shelf,
+             [(faker.ean(length=13), random.randint(1, random_quantity)) for _ in range(number_of_items_in_a_shelf)]))
     return my_order
 
 
