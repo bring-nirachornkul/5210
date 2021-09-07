@@ -165,7 +165,7 @@ def create_fake_order(warehouse_map, number_of_shelf: int, number_of_items_in_a_
     faker = Faker()
 
     # Extract all shelves from the warehouse map
-    all_shelves = ''.join(element for row in warehouse1 for element in row if element.isalpha())
+    all_shelves = ''.join(element for row in warehouse for element in row if element.isalpha())
 
     # Create a list of random number_of_shelf shelves out of all_shelves lexicographically
     order_shelves = sorted(random.sample(all_shelves, number_of_shelf))
