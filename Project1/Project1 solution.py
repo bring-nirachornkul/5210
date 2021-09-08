@@ -25,13 +25,13 @@ class Robot:
             to direction next to the robot in the pattern west / east / north / south
     """
 
-    def __init__(self, a_ware_house: list, an_order: list, items=dict(), around=[0, 0, 0, 0], path=[], score=0):
+    def __init__(self, a_ware_house: list, an_order: list):
         self.warehouse = a_ware_house
         self.order = an_order
-        self.items = items
-        self.around = around
-        self.path = path
-        self.score = score
+        self.items = dict()
+        self.around = [0, 0, 0, 0]
+        self.path = []
+        self.score = 0
         self.rpos = 0
         self.cpos = 0
 
@@ -165,7 +165,7 @@ def create_fake_order(warehouse_map, number_of_shelf: int, number_of_items_in_a_
     faker = Faker()
 
     # Extract all shelves from the warehouse map
-    all_shelves = ''.join(element for row in warehouse for element in row if element.isalpha())
+    all_shelves = ''.join(element for row in warehouse_map for element in row if element.isalpha())
 
     # Create a list of random number_of_shelf shelves out of all_shelves lexicographically
     order_shelves = sorted(random.sample(all_shelves, number_of_shelf))
@@ -186,7 +186,7 @@ def try_warehouses(warehouse, episodes=1000):
     for episode in range(episodes):
         # print(f'Episode {episode}')
         robot = Robot(warehouse,
-                      create_fake_order(warehouse_map=warehouse, number_of_shelf=5, number_of_items_in_a_shelf=3))
+                      create_fake_order(warehouse_map=warehouse, number_of_shelf=2, number_of_items_in_a_shelf=3))
         robot.proceed_order()
         if min_score > robot.score:
             min_score = robot.score
@@ -215,5 +215,5 @@ warehouse1 = np.array([[0, 0, 'D', 0, 0, 0], [0, 'A', 0, 0, 'G', 0], ['E', 0, 'B
                        [0, 'C', 0, 0, 0, 0], [0, 0, 'F', 0, 0, 'H'], [0, 0, 0, 'J', 0, 0]])
 warehouse2 = np.array([[0, 0, 'A', 0, 'P', 0], ['D', 0, 'B', 0, 'M', 0], ['E', 0, 'F', 0, 'K', 0],
                        ['C', 0, 'H', 0, 0, 'O'], ['G', 0, 'J', 0, 0, 'Q'], ['I', 0, 0, 0, 'N', 0]])
-try_warehouses(warehouse1, 1)
+try_warehouses(warehouse1, 10)
 # try_warehouses(warehouse2)
