@@ -221,7 +221,7 @@ def try_warehouses(warehouse: WareHouse, episodes=1000):
     for episode in range(episodes):
         # print(f'Episode {episode}')
         robot = Robot(warehouse,
-                      create_fake_order(warehouse=warehouse, number_of_shelf=2, number_of_items_in_a_shelf=3))
+                      create_fake_order(warehouse=warehouse, number_of_shelf=1, number_of_items_in_a_shelf=3))
         robot.proceed_order()
         if min_score > robot.score:
             min_score = robot.score
@@ -243,5 +243,5 @@ warehouse1 = WareHouse(np.array([[0, 0, 'D', 0, 0, 0], [0, 'A', 0, 0, 'G', 0], [
 
 warehouse2 = WareHouse(np.array([[0, 0, 'A', 0, 'P', 0], ['D', 0, 'B', 0, 'M', 0], ['E', 0, 'F', 0, 'K', 0],
                                  ['C', 0, 'H', 0, 0, 'O'], ['G', 0, 'J', 0, 0, 'Q'], ['I', 0, 0, 0, 'N', 0]]))
-try_warehouses(warehouse1, 10)
+try_warehouses(warehouse1)
 # try_warehouses(warehouse2)
