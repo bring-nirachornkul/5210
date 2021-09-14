@@ -3,23 +3,29 @@ import math
 from faker import Faker
 import numpy as np
 
+'''
+This is an example of a map of a ware house 
+    Data structure: 2D array
+    Size: 6x6
+    0 represents no shelf
+    A capital letter represents the name of the shelf
+'''
+
 
 class WareHouse:
-    '''
-    This is an example of a map of a ware house
-        Data structure: 2D array
-        Size: 6x6
-        0 represents no shelf
-        A capital letter represents the name of the shelf
-    '''
-
-    def __init__(self, map):
+    def __init__(self, map, location=dict()):
         self.map = map
-        self.location = dict()
+        self.location = location
         for i1, row in enumerate(map):
             for i2, shelf in enumerate(row):
                 if shelf.isalpha():
                     self.location[shelf] = [i1, i2]
+
+
+warehouse1 = WareHouse(map=np.array([[0, 0, 'D', 0, 0, 0], [0, 'A', 0, 0, 'G', 0], ['E', 0, 'B', 0, 'I', 0],
+                                     [0, 'C', 0, 0, 0, 0], [0, 0, 'F', 0, 0, 'H'], [0, 0, 0, 'J', 0, 0]]))
+warehouse2 = WareHouse(map=np.array([[0, 0, 'A', 0, 'P', 0], ['D', 0, 'B', 0, 'M', 0], ['E', 0, 'F', 0, 'K', 0],
+                                     ['C', 0, 'H', 0, 0, 'O'], ['G', 0, 'J', 0, 0, 'Q'], ['I', 0, 0, 0, 'N', 0]]))
 
 
 class Robot:
@@ -43,13 +49,13 @@ class Robot:
             to direction next to the robot in the pattern west / east / north / south
     """
 
-    def __init__(self, a_ware_house: WareHouse, an_order: list):
+    def __init__(self, a_ware_house: WareHouse, an_order: list, items=dict(), around=[0, 0, 0, 0], path=[], score=0):
         self.warehouse = a_ware_house
         self.order = an_order
-        self.items = dict()
-        self.around = [0, 0, 0, 0]
-        self.path = []
-        self.score = 0
+        self.items = items
+        self.around = around
+        self.path = path
+        self.score = score
         self.rpos = 0
         self.cpos = 0
 
@@ -98,11 +104,9 @@ class Robot:
         }
         self.rpos = self.cpos = 0
         self.path.append([self.rpos, self.cpos])
-
         shelves_to_go = sorted(sorted(i[0] for i in self.order))
         move = 0
-        while shelves_to_go and move < 100:  # Until the robot picked up all items in an order
-            # print(f'self.order: {self.order}')
+        while shelves_to_go:  # Until the robot picked up all items in an order
             # print(f'shelves_to_go: {shelves_to_go}')
             # print(f'Move: {move}')
             # print(f'Current position: {self.rpos, self.cpos}')
@@ -168,25 +172,22 @@ class Robot:
             # print()
 
 
-def create_fake_order(warehouse: WareHouse, number_of_shelf: int, number_of_items_in_a_shelf: int, random_quantity=5):
+def create_fake_order(warehouse_map: WareHouse, number_of_shelf: int, number_of_items_in_a_shelf: int, random_quantity=5):
     """
     This function creates a fake order with
-        Data structure: list
-            The first layer
-            Data structure: tuple
-                Shelf: The name of the shelf
-                Details: It contains all items that can be found in the specific shelf
-                    Data structure: list of tuples
-                    Each tuple has:
-                        Code of the item
-                        Quantity of the item as a random number from 1 to random_quantity
+        Data structure: list of tuples
+            Shelf: The name of the shelf
+            Details: It contains all items that can be found in the specific shelf
+            Each tuple has:
+                Code of the item
+                Quantity of the item as a random number from 1 to random_quantity
     """
 
     faker = Faker()
 
     # Extract all shelves from the warehouse map
-    all_shelves = ''.join(warehouse.location.keys())
-    # print(f'all shelves : {all_shelves}')
+    all_shelves = ''.join(warehouse_map.location.keys())
+    print(f'all_shelves: {all_shelves}')
 
     # Create a list of random number_of_shelf shelves out of all_shelves lexicographically
     order_shelves = sorted(random.sample(all_shelves, number_of_shelf))
@@ -199,11 +200,7 @@ def create_fake_order(warehouse: WareHouse, number_of_shelf: int, number_of_item
     return my_order
 
 
-def try_warehouses(warehouse: WareHouse, episodes=1000):
-    '''
-    This function prints the min-max scores and the shortest-longest path
-    that a robot moves to collect items in a warehouse in "episodes" times
-    '''
+def try_warehouses(warehouse, episodes=1000):
     avg_score = 0
     shortest_path, longest_path = [], []
     min_score = math.inf
@@ -211,8 +208,9 @@ def try_warehouses(warehouse: WareHouse, episodes=1000):
     for episode in range(episodes):
         # print(f'Episode {episode}')
         robot = Robot(warehouse,
-                      create_fake_order(warehouse=warehouse, number_of_shelf=1, number_of_items_in_a_shelf=3))
+                      create_fake_order(warehouse_map=warehouse, number_of_shelf=5, number_of_items_in_a_shelf=3))
         robot.proceed_order()
+
         if min_score > robot.score:
             min_score = robot.score
             shortest_path = robot.path[:]
@@ -228,10 +226,5 @@ def try_warehouses(warehouse: WareHouse, episodes=1000):
     print(f'The longest path is {longest_path} with {max_score} points')
 
 
-warehouse1 = WareHouse(np.array([[0, 0, 'D', 0, 0, 0], [0, 'A', 0, 0, 'G', 0], ['E', 0, 'B', 0, 'I', 0],
-                                 [0, 'C', 0, 0, 0, 0], [0, 0, 'F', 0, 0, 'H'], [0, 0, 0, 'J', 0, 0]]))
-
-warehouse2 = WareHouse(np.array([[0, 0, 'A', 0, 'P', 0], ['D', 0, 'B', 0, 'M', 0], ['E', 0, 'F', 0, 'K', 0],
-                                 ['C', 0, 'H', 0, 0, 'O'], ['G', 0, 'J', 0, 0, 'Q'], ['I', 0, 0, 0, 'N', 0]]))
-try_warehouses(warehouse1)
+try_warehouses(warehouse1, 1)
 # try_warehouses(warehouse2)
