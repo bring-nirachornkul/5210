@@ -117,16 +117,16 @@ class Robot:
 
             # Scan around to see how many surrounding shelves have the item in the order
             if self.peak_west() and self.warehouse.map[self.rpos, self.peak_west()] in shelves_to_go:
-                # print(f'around 0 : {self.warehouse.map[self.rpos, self.peak_west()]}')
+                # print(f'around 0 : {self.warehouse[self.rpos, self.peak_west()]}')
                 self.around[0] = 1
             if self.peak_east() and self.warehouse.map[self.rpos, self.peak_east()] in shelves_to_go:
-                # print(f'around 1 : {self.warehouse.map[self.rpos, self.peak_east()]}')
+                # print(f'around 1 : {self.warehouse[self.rpos, self.peak_east()]}')
                 self.around[1] = 1
             if self.peak_north() and self.warehouse.map[self.peak_north(), self.cpos] in shelves_to_go:
-                # print(f'around 2 : {self.warehouse.map[self.peak_north(), self.cpos]}')
+                # print(f'around 2 : {self.warehouse[self.peak_north(), self.cpos]}')
                 self.around[2] = 1
             if self.peak_south() and self.warehouse.map[self.peak_south(), self.cpos] in shelves_to_go:
-                # print(f'around 3 : {self.warehouse.map[self.peak_south(), self.cpos]}')
+                # print(f'around 3 : {self.warehouse[self.peak_south(), self.cpos]}')
                 self.around[3] = 1
 
             # print(f'self.around: {self.around}')
@@ -160,8 +160,8 @@ class Robot:
                 # print(f'order: {self.order}')
                 # Pick up all items in the order that belong to a shelf
                 for shelf, details in self.order:
-                    # print(f'self.order: {self.order}')
                     if shelf == name_of_shelf:
+                        # print(f'sub_order[name_of_shelf]: {sub_order[name_of_shelf]}')
                         for code, quantity in details:
                             self.get_items(code, quantity)
                         shelves_to_go.remove(name_of_shelf)
@@ -187,7 +187,7 @@ def create_fake_order(warehouse_map: WareHouse, number_of_shelf: int, number_of_
 
     # Extract all shelves from the warehouse map
     all_shelves = ''.join(warehouse_map.location.keys())
-    # print(f'all_shelves: {all_shelves}')
+    print(f'all_shelves: {all_shelves}')
 
     # Create a list of random number_of_shelf shelves out of all_shelves lexicographically
     order_shelves = sorted(random.sample(all_shelves, number_of_shelf))
@@ -208,8 +208,9 @@ def try_warehouses(warehouse, episodes=1000):
     for episode in range(episodes):
         # print(f'Episode {episode}')
         robot = Robot(warehouse,
-                      create_fake_order(warehouse_map=warehouse, number_of_shelf=1, number_of_items_in_a_shelf=3))
+                      create_fake_order(warehouse_map=warehouse, number_of_shelf=5, number_of_items_in_a_shelf=3))
         robot.proceed_order()
+
         if min_score > robot.score:
             min_score = robot.score
             shortest_path = robot.path[:]
@@ -225,5 +226,5 @@ def try_warehouses(warehouse, episodes=1000):
     print(f'The longest path is {longest_path} with {max_score} points')
 
 
-try_warehouses(warehouse1, 2)
+try_warehouses(warehouse1, 1)
 # try_warehouses(warehouse2)
