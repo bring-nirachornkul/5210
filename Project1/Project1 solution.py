@@ -107,47 +107,47 @@ class Robot:
         shelves_to_go = sorted(sorted(i[0] for i in self.order))
         move = 0
         while shelves_to_go:  # Until the robot picked up all items in an order
-            # print(f'shelves_to_go: {shelves_to_go}')
-            # print(f'Move: {move}')
-            # print(f'Current position: {self.rpos, self.cpos}')
+            print(f'shelves_to_go: {shelves_to_go}')
+            print(f'Move: {move}')
+            print(f'Current position: {self.rpos, self.cpos}')
             peak_all_directions = [[self.rpos, self.peak_west()], [self.rpos, self.peak_east()],
                                    [self.peak_north(), self.cpos], [self.peak_south(), self.cpos]]
             peak_all_directions = [i for i in peak_all_directions if None not in i]
-            # print(f'peak_all_directions: {peak_all_directions}')
+            print(f'peak_all_directions: {peak_all_directions}')
 
             # Scan around to see how many surrounding shelves have the item in the order
             if self.peak_west() and self.warehouse.map[self.rpos, self.peak_west()] in shelves_to_go:
-                # print(f'around 0 : {self.warehouse.map[self.rpos, self.peak_west()]}')
+                print(f'around 0 : {self.warehouse.map[self.rpos, self.peak_west()]}')
                 self.around[0] = 1
             if self.peak_east() and self.warehouse.map[self.rpos, self.peak_east()] in shelves_to_go:
-                # print(f'around 1 : {self.warehouse.map[self.rpos, self.peak_east()]}')
+                print(f'around 1 : {self.warehouse.map[self.rpos, self.peak_east()]}')
                 self.around[1] = 1
             if self.peak_north() and self.warehouse.map[self.peak_north(), self.cpos] in shelves_to_go:
-                # print(f'around 2 : {self.warehouse.map[self.peak_north(), self.cpos]}')
+                print(f'around 2 : {self.warehouse.map[self.peak_north(), self.cpos]}')
                 self.around[2] = 1
             if self.peak_south() and self.warehouse.map[self.peak_south(), self.cpos] in shelves_to_go:
-                # print(f'around 3 : {self.warehouse.map[self.peak_south(), self.cpos]}')
+                print(f'around 3 : {self.warehouse.map[self.peak_south(), self.cpos]}')
                 self.around[3] = 1
 
-            # print(f'self.around: {self.around}')
+            print(f'self.around: {self.around}')
 
             # Determine the direction to move
             if sum(self.around) == 0:
                 self.rpos, self.cpos = random.choice(peak_all_directions)
-                # print(f'Current position after choice: {self.rpos, self.cpos}')
+                print(f'Current position after choice: {self.rpos, self.cpos}')
                 self.score -= 1
 
             elif sum(self.around) == 1:
                 # Find the index of the only grid square and move to that only grid square
                 where_to_go[self.around.index(1)]()
-                # print(f'== 1 Current position after choice: {self.rpos, self.cpos}')
+                print(f'== 1 Current position after choice: {self.rpos, self.cpos}')
                 self.score += 3
 
             elif sum(self.around) > 1:
                 # make a random choice between the positions involved
                 index_of_directions = [i for i, v in enumerate(self.around) if v == 1]
                 where_to_go[random.choice(index_of_directions)]()
-                # print(f'> 1 Current position after choice: {self.rpos, self.cpos}')
+                print(f'> 1 Current position after choice: {self.rpos, self.cpos}')
                 self.score += 3
 
             # Update the locations that the robot has followed so far
@@ -156,11 +156,11 @@ class Robot:
             # Determine what shelf it is
             name_of_shelf = self.warehouse.map[self.rpos, self.cpos]
             if name_of_shelf.isalpha() and name_of_shelf in shelves_to_go:
-                # print(f'name of shelf: {name_of_shelf}')
-                # print(f'order: {self.order}')
+                print(f'name of shelf: {name_of_shelf}')
+                print(f'order: {self.order}')
                 # Pick up all items in the order that belong to a shelf
                 for shelf, details in self.order:
-                    # print(f'self.order: {self.order}')
+                    print(f'self.order: {self.order}')
                     if shelf == name_of_shelf:
                         for code, quantity in details:
                             self.get_items(code, quantity)
@@ -168,8 +168,8 @@ class Robot:
             # Reset around
             self.around = [0, 0, 0, 0]
             move += 1
-            # print(f'score: {self.score}')
-            # print()
+            print(f'score: {self.score}')
+            print()
 
 
 def create_fake_order(warehouse_map: WareHouse, number_of_shelf: int, number_of_items_in_a_shelf: int, random_quantity=5):
