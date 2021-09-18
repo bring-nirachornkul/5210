@@ -199,10 +199,10 @@ def try_warehouses(warehouse, episodes=1000):
         robot.proceed_order()
         if min_score > robot.score:
             min_score = robot.score
-            shortest_path = robot.path[:]
+            longest_path = robot.path[:]
         if max_score < robot.score:
             max_score = robot.score
-            longest_path = robot.path[:]
+            shortest_path = robot.path[:]
         avg_score += robot.score
     avg_score /= episodes
     print(f'Average score after {episodes} episodes is {avg_score}')
@@ -212,5 +212,5 @@ def try_warehouses(warehouse, episodes=1000):
     print(f'The longest path is {longest_path} with {min_score} points')
 
 
-try_warehouses(warehouse1, 5)
+try_warehouses(warehouse1)
 # try_warehouses(warehouse2)
