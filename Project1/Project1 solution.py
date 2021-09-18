@@ -208,8 +208,8 @@ def try_warehouses(warehouse, episodes=1000):
     print(f'Average score after {episodes} episodes is {avg_score}')
     print(f'Min score is : {min_score}')
     print(f'Max score is : {max_score}')
-    print(f'The shortest path is {shortest_path} with {max_score} points')
-    print(f'The longest path is {longest_path} with {min_score} points')
+    print(f'The shortest path is {shortest_path}')
+    print(f'The longest path is {longest_path}')
 
 
 try_warehouses(warehouse1)
