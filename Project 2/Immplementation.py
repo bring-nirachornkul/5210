@@ -21,9 +21,10 @@ class Order:
 
 
 class Node:
-    def __init__(self, weight=0, number=1):
+    def __init__(self, weight=0, number=1, parent=None):
         self.l = None
         self.r = None
+        self.parent = parent
         self.weight = weight
         self.number = number
 
@@ -34,15 +35,6 @@ class Node:
 class Tree:
     count = 0
     weights = []
-
-    def print_tree(self):
-        '''
-        This method prints a list of all nodes and their respective weights
-        '''
-        if Tree.count > 0:
-            print([(count, weight) for count, weight in zip(range(1, Tree.count + 1), Tree.weights)])
-        else:
-            print('The tree needs to have some nodes')
 
     @staticmethod
     def halves(n):
@@ -73,11 +65,16 @@ class Tree:
             Tree.weights.append(0)
         else:
             current = self.getRoot()
+            next_node = current
             Tree.count += 1
             if Tree.count == 2:
                 current.l = Node(weight, 2)
+                next_node = current.l
+                next_node.parent = current
             elif Tree.count == 3:
                 current.r = Node(weight, 3)
+                next_node = current.r
+                next_node.parent = current
             else:
                 paths = self.halves(Tree.count)[:-1]
                 cur = paths[0]
@@ -89,9 +86,28 @@ class Tree:
                     cur = path
                 if cur * 2 == Tree.count:
                     current.l = Node(weight, Tree.count)
+                    next_node = current.l
+                    next_node.parent = current
                 else:
                     current.r = Node(weight, Tree.count)
+                    next_node = current.r
+                    next_node.parent = current
         Tree.weights.append(weight)
+
+    def print_tree(self):
+        '''
+        This method prints a list of all nodes and their respective weights
+        '''
+        if Tree.count > 0:
+            print([(count, weight) for count, weight in zip(range(1, Tree.count + 1), Tree.weights)])
+        else:
+            print('The tree needs to have some nodes')
+
+    def Postorder(self, root):
+        if root:
+            self.Postorder(root.l)
+            self.Postorder(root.r)
+            print(root.number)
 
 
 tree = Tree()
@@ -101,4 +117,12 @@ tree.add(20)
 tree.add(30)
 tree.add(40)
 tree.add(10)
-tree.print_tree()
+tree.add(10)
+tree.add(20)
+tree.add(30)
+tree.add(20)
+tree.add(30)
+tree.add(20)
+tree.add(20)
+tree.add(20)
+
