@@ -94,6 +94,16 @@ class Tree:
                     next_node.parent = current
         Tree.weights.append(weight)
 
+    def find_node(self, number):
+        '''
+        This method returns a path from root to the node which has the number
+        '''
+        if number <= Tree.count:
+            paths = self.halves(number)[1:]
+            path_from_root = ['R' if p % 2 else 'L' for p in paths]
+            return path_from_root
+        return 'The node number does not exist in the tree'
+
     def print_tree(self):
         '''
         This method prints a list of all nodes and their respective weights
@@ -107,7 +117,10 @@ class Tree:
         if root:
             self.Postorder(root.l)
             self.Postorder(root.r)
-            print(root.number)
+            print(f'Current node number: {root.number}')
+            if root.parent:
+                print(f'parent is {root.parent.number}')
+            print()
 
 
 tree = Tree()
@@ -125,4 +138,6 @@ tree.add(30)
 tree.add(20)
 tree.add(20)
 tree.add(20)
-
+print(tree.find_node(14))
+# root = tree.getRoot()
+# tree.Postorder(root)
