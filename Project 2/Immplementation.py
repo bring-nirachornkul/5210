@@ -1,4 +1,5 @@
 import random
+import math
 from faker import Faker
 
 
@@ -21,10 +22,10 @@ class Order:
 
 
 class Node:
-    def __init__(self, weight=0, number=1, parent=None):
+    def __init__(self, weight=0, number=1):
         self.l = None
         self.r = None
-        self.parent = parent
+        self.parent = None
         self.weight = weight
         self.number = number
 
@@ -35,6 +36,7 @@ class Node:
 class Tree:
     count = 0
     weights = []
+    height = 1
 
     @staticmethod
     def halves(n):
@@ -58,6 +60,9 @@ class Tree:
         return self.root
 
     def add(self, weight):
+        '''
+        This method automatic insert the new node to its appropriate position in accordance with the tree structure
+        '''
         if self.root is None:
             self.root = Node()
             Tree.count += 1
@@ -93,15 +98,24 @@ class Tree:
                     next_node = current.r
                     next_node.parent = current
         Tree.weights.append(weight)
+        Tree.height = int(math.log2(Tree.count + 1))
 
     def find_node(self, number):
         '''
         This method returns a path from root to the node which has the number
         '''
-        if number <= Tree.count:
+        if 0 < number <= Tree.count:
             paths = self.halves(number)[1:]
             path_from_root = ['R' if p % 2 else 'L' for p in paths]
             return path_from_root
+        return 'The node number does not exist in the tree'
+
+    def back_track(self, number):
+        '''
+        This method returns a back track from a specific node to the tree's root
+        '''
+        if 0 < number <= Tree.count:
+            return self.halves(number)[::-1][1:]
         return 'The node number does not exist in the tree'
 
     def print_tree(self):
@@ -114,6 +128,9 @@ class Tree:
             print('The tree needs to have some nodes')
 
     def Postorder(self, root):
+        '''
+        This method prints the tree in post order
+        '''
         if root:
             self.Postorder(root.l)
             self.Postorder(root.r)
@@ -121,6 +138,25 @@ class Tree:
             if root.parent:
                 print(f'parent is {root.parent.number}')
             print()
+
+    def ids(self, number, depth_limit=None):
+        '''
+        This method makes use of iterative deepening search for a specific node
+        '''
+        if depth_limit == None:
+            depth_limit = Tree.height
+        visited = []
+        current_node = self.getRoot()
+        while current_node and int(math.log2(current_node.number + 1)) <= Tree.height and current_node.number != number:
+            if current_node.number not in visited:
+                visited.append(current_node.number)
+            if current_node.l and current_node.l.number not in visited:
+                current_node = current_node.l
+            elif current_node.r and current_node.r.number not in visited:
+                current_node = current_node.r
+            else:
+                current_node = current_node.parent
+        return visited
 
 
 tree = Tree()
@@ -138,6 +174,8 @@ tree.add(30)
 tree.add(20)
 tree.add(20)
 tree.add(20)
-print(tree.find_node(14))
+# tree.ids(15)
+# print(tree.back_track(12))
+# print(tree.find_node(12))
 # root = tree.getRoot()
 # tree.Postorder(root)
