@@ -1,5 +1,5 @@
 import random
-import math
+from math import log2
 from faker import Faker
 
 
@@ -26,6 +26,7 @@ class Node:
         self.l = None
         self.r = None
         self.parent = None
+        self.level = None
         self.weight = weight
         self.number = number
 
@@ -36,7 +37,6 @@ class Node:
 class Tree:
     count = 0
     weights = []
-    height = 1
 
     @staticmethod
     def halves(n):
@@ -50,10 +50,18 @@ class Tree:
             n //= 2
         return r[::-1]
 
+    @staticmethod
+    def find_level(number):
+        '''
+        This methods returns the level of a node from its root given its number
+        '''
+        return int(log2(number + 1))
+
     def __init__(self):
         self.root = Node()
         Tree.count += 1
         self.root.number = Tree.count
+        self.root.level = 1
         Tree.weights.append(0)
 
     def getRoot(self):
@@ -97,8 +105,9 @@ class Tree:
                     current.r = Node(weight, Tree.count)
                     next_node = current.r
                     next_node.parent = current
+            next_node.level = self.find_level(Tree.count)
         Tree.weights.append(weight)
-        Tree.height = int(math.log2(Tree.count + 1))
+        Tree.depth = self.find_level(Tree.count)
 
     def find_node(self, number):
         '''
@@ -134,7 +143,7 @@ class Tree:
         if root:
             self.Postorder(root.l)
             self.Postorder(root.r)
-            print(f'Current node number: {root.number}')
+            print(f'Current node number: {root.number}, level: {root.level}')
             if root.parent:
                 print(f'parent is {root.parent.number}')
             print()
@@ -143,11 +152,14 @@ class Tree:
         '''
         This method makes use of iterative deepening search for a specific node
         '''
+        if number < 1 or number > Tree.count:
+            return f'The node number does not exist in the tree'
         if depth_limit == None:
-            depth_limit = Tree.height
+            depth_limit = Tree.depth
         visited = []
         current_node = self.getRoot()
-        while current_node and int(math.log2(current_node.number + 1)) <= Tree.height and current_node.number != number:
+        while current_node and current_node.level <= depth_limit - 1 and current_node.number != number:
+            print(f'Current node number: {current_node.number},  level: {current_node.level}, depth limit: {depth_limit}')
             if current_node.number not in visited:
                 visited.append(current_node.number)
             if current_node.l and current_node.l.number not in visited:
@@ -156,6 +168,11 @@ class Tree:
                 current_node = current_node.r
             else:
                 current_node = current_node.parent
+        print(f'Current node after while loop: {current_node.number}')
+        if not current_node or current_node.number != number:
+            return f'The node number {number} could not be found'
+        else:
+            visited.append(current_node.number)
         return visited
 
 
@@ -174,6 +191,12 @@ tree.add(30)
 tree.add(20)
 tree.add(20)
 tree.add(20)
+for i in range(1, 16):
+    for j in range(1, 5):
+        print(f'Searching for {i} with depth limit {j}')
+        print(tree.ids(i, j))
+        print()
+# tree.print_tree()
 # tree.ids(15)
 # print(tree.back_track(12))
 # print(tree.find_node(12))
