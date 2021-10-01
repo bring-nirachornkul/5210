@@ -35,7 +35,7 @@ class Node:
         self.number = number
 
     def __repr__(self):
-        return f'Node number {self.number} has cost of {self.cost}'
+        return f'Node number {self.number} has the cost of {self.cost}'
 
 
 class Tree:
