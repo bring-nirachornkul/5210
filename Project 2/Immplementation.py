@@ -202,22 +202,10 @@ class Tree:
             visited.append(current_node.number)
         return visited
 
-
+costs = [20, 20, 20, 30, 40, 10, 10, 20, 30, 20, 30, 20, 20, 20]
 tree = Tree()
-tree.add(20)
-tree.add(20)
-tree.add(20)
-tree.add(30)
-tree.add(40)
-tree.add(10)
-tree.add(10)
-tree.add(20)
-tree.add(30)
-tree.add(20)
-tree.add(30)
-tree.add(20)
-tree.add(20)
-tree.add(20)
+for cost in costs:
+    tree.add(cost)
 tree.print_tree()
 # tree.ids(15)
 # print(tree.back_track(12))
