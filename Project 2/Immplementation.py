@@ -4,10 +4,14 @@ from faker import Faker
 
 
 class Order:
-    '''
-    This creates an order with random numbers representing
-    divivion, items ordered, shelf
-    Assumption: The quantity of each item is 1, and the number of shelves is equal to the number of items
+    '''Creates an order from random numbers
+
+    Args:
+        divivion: The high of random range of division
+        items ordered: The high of random range of the quantity of items ordered
+        shelf: The high of random range of the quantity of shelves
+    Assumption:
+        The quantity of each item is 1, and the number of shelves is equal to the number of items
     '''
     division = random.randint(1, 15)
     number_of_items = random.randint(1, 3)
@@ -22,26 +26,30 @@ class Order:
 
 
 class Node:
-    def __init__(self, weight=0, number=1):
+    def __init__(self, cost=0, number=1):
         self.l = None
         self.r = None
         self.parent = None
         self.level = None
-        self.weight = weight
+        self.cost = cost
         self.number = number
 
     def __repr__(self):
-        return f'Node number {self.number} has weight of {self.weight}'
+        return f'Node number {self.number} has cost of {self.cost}'
 
 
 class Tree:
     count = 0
-    weights = []
+    costs = []
 
     @staticmethod
     def halves(n):
-        '''
-        This method returns the path from the root node to the current one
+        '''Creates the path from the root node to the current one
+
+            Args:
+                n: The destination node's id
+            Returns:
+                the path from the root node to the current one
         '''
         r = []
         path = ''
@@ -52,8 +60,12 @@ class Tree:
 
     @staticmethod
     def find_level(number):
-        '''
-        This methods returns the level of a node from its root given its number
+        '''Applies the binary log to find the level of a node in the tree
+
+            Args:
+                number: The node's id
+            Returns:
+                The level of the node in the tree
         '''
         return int(log2(number + 1))
 
@@ -62,30 +74,33 @@ class Tree:
         Tree.count += 1
         self.root.number = Tree.count
         self.root.level = 1
-        Tree.weights.append(0)
+        Tree.costs.append(0)
 
     def getRoot(self):
         return self.root
 
-    def add(self, weight):
+    def add(self, cost):
+        '''Inserts the new node to its appropriate position in accordance with the tree structure
+
+            Args:
+                cost: The node's path cost from its parent
         '''
-        This method automatic insert the new node to its appropriate position in accordance with the tree structure
-        '''
+
         if self.root is None:
             self.root = Node()
             Tree.count += 1
             self.root.number = Tree.count
-            Tree.weights.append(0)
+            Tree.costs.append(0)
         else:
             current = self.getRoot()
             next_node = current
             Tree.count += 1
             if Tree.count == 2:
-                current.l = Node(weight, 2)
+                current.l = Node(cost, 2)
                 next_node = current.l
                 next_node.parent = current
             elif Tree.count == 3:
-                current.r = Node(weight, 3)
+                current.r = Node(cost, 3)
                 next_node = current.r
                 next_node.parent = current
             else:
@@ -98,20 +113,22 @@ class Tree:
                         current = current.r
                     cur = path
                 if cur * 2 == Tree.count:
-                    current.l = Node(weight, Tree.count)
+                    current.l = Node(cost, Tree.count)
                     next_node = current.l
                     next_node.parent = current
                 else:
-                    current.r = Node(weight, Tree.count)
+                    current.r = Node(cost, Tree.count)
                     next_node = current.r
                     next_node.parent = current
             next_node.level = self.find_level(Tree.count)
-        Tree.weights.append(weight)
+        Tree.costs.append(cost)
         Tree.depth = self.find_level(Tree.count)
 
     def find_node(self, number):
-        '''
-        This method returns a path from root to the node which has the number
+        '''Returns a path from root to the node which has the number
+
+            Args:
+                 number: The node's id
         '''
         if 0 < number <= Tree.count:
             paths = self.halves(number)[1:]
@@ -120,25 +137,34 @@ class Tree:
         return 'The node number does not exist in the tree'
 
     def back_track(self, number):
+        '''Returns a back track from a specific node to the tree's root
+
+            Args:
+                 number: The node's id
         '''
-        This method returns a back track from a specific node to the tree's root
-        '''
+
         if 0 < number <= Tree.count:
             return self.halves(number)[::-1][1:]
         return 'The node number does not exist in the tree'
 
     def print_tree(self):
-        '''
-        This method prints a list of all nodes and their respective weights
+        '''Prints a list of all nodes and their respective costs
         '''
         if Tree.count > 0:
-            print([(count, weight) for count, weight in zip(range(1, Tree.count + 1), Tree.weights)])
+            for i in range(1, Tree.count + 1):
+                level = int(log2(i)) + 1
+                print(f'Level {level}', end='')
+                print(f'Node {i}'.center(20))
+                if int(log2(i + 1)) + 1 > level:
+                    print()
         else:
             print('The tree needs to have some nodes')
 
     def Postorder(self, root):
-        '''
-        This method prints the tree in post order
+        '''Prints the tree in post order
+
+            Args:
+                root: The tree's starting point
         '''
         if root:
             self.Postorder(root.l)
@@ -159,7 +185,8 @@ class Tree:
         visited = []
         current_node = self.getRoot()
         while current_node and current_node.level <= depth_limit - 1 and current_node.number != number:
-            print(f'Current node number: {current_node.number},  level: {current_node.level}, depth limit: {depth_limit}')
+            print(
+                f'Current node number: {current_node.number},  level: {current_node.level}, depth limit: {depth_limit}')
             if current_node.number not in visited:
                 visited.append(current_node.number)
             if current_node.l and current_node.l.number not in visited:
@@ -191,12 +218,7 @@ tree.add(30)
 tree.add(20)
 tree.add(20)
 tree.add(20)
-for i in range(1, 16):
-    for j in range(1, 5):
-        print(f'Searching for {i} with depth limit {j}')
-        print(tree.ids(i, j))
-        print()
-# tree.print_tree()
+tree.print_tree()
 # tree.ids(15)
 # print(tree.back_track(12))
 # print(tree.find_node(12))
