@@ -39,8 +39,6 @@ class Node:
 
 
 class Tree:
-    count = 0
-    costs = []
 
     @staticmethod
     def halves(n):
@@ -69,12 +67,11 @@ class Tree:
         '''
         return int(log2(number + 1))
 
-    def __init__(self):
+    def __init__(self, name):
+        self.name = name
         self.root = Node()
-        Tree.count += 1
-        self.root.number = Tree.count
+        self.tail = self.root
         self.root.level = 1
-        Tree.costs.append(0)
 
     def getRoot(self):
         return self.root
@@ -88,23 +85,20 @@ class Tree:
 
         if self.root is None:
             self.root = Node()
-            Tree.count += 1
-            self.root.number = Tree.count
-            Tree.costs.append(0)
+            self.tail = self.root
         else:
             current = self.getRoot()
             next_node = current
-            Tree.count += 1
-            if Tree.count == 2:
-                current.l = Node(cost, 2)
+            if self.tail.number == 1:
+                current.l = Node(cost)
                 next_node = current.l
                 next_node.parent = current
-            elif Tree.count == 3:
-                current.r = Node(cost, 3)
+            elif self.tail.number == 2:
+                current.r = Node(cost)
                 next_node = current.r
                 next_node.parent = current
             else:
-                paths = self.halves(Tree.count)[:-1]
+                paths = self.halves(self.tail.number + 1)[:-1]
                 cur = paths[0]
                 for path in paths[1:]:
                     if cur * 2 == path:
@@ -112,17 +106,18 @@ class Tree:
                     else:
                         current = current.r
                     cur = path
-                if cur * 2 == Tree.count:
-                    current.l = Node(cost, Tree.count)
+                if cur * 2 == self.tail.number:
+                    current.l = Node(cost, self.tail.number)
                     next_node = current.l
                     next_node.parent = current
                 else:
-                    current.r = Node(cost, Tree.count)
+                    current.r = Node(cost, self.tail.number)
                     next_node = current.r
                     next_node.parent = current
-            next_node.level = self.find_level(Tree.count)
-        Tree.costs.append(cost)
-        Tree.depth = self.find_level(Tree.count)
+            next_node.level = self.find_level(self.tail.number)
+            next_node.number = self.tail.number + 1
+            self.tail = next_node
+
 
     def find_node(self, number):
         '''Returns a path from root to the node which has the number
@@ -150,8 +145,9 @@ class Tree:
     def print_tree(self):
         '''Prints a list of all nodes and their respective costs
         '''
-        if Tree.count > 0:
-            for i in range(1, Tree.count + 1):
+        if self.tail.number > 0:
+            print(f'The tree of {self.name}:')
+            for i in range(1, self.tail.number + 1):
                 level = int(log2(i)) + 1
                 print(f'Level {level}', end='')
                 print(f'Node {i}'.center(20))
@@ -202,11 +198,18 @@ class Tree:
             visited.append(current_node.number)
         return visited
 
+
 costs = [20, 20, 20, 30, 40, 10, 10, 20, 30, 20, 30, 20, 20, 20]
-tree = Tree()
+divisons = Tree('divisions')
 for cost in costs:
-    tree.add(cost)
-tree.print_tree()
+    divisons.add(cost)
+# divisons.print_tree()
+
+shelves = Tree('shelves')
+for i in range(63):
+    shelves.add(1)
+# shelves.print_tree()
+
 # tree.ids(15)
 # print(tree.back_track(12))
 # print(tree.find_node(12))
