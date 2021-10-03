@@ -1,5 +1,6 @@
 import random
 from math import log2
+from typing import Union
 from faker import Faker
 
 
@@ -13,13 +14,12 @@ class Order:
     Assumption:
         The quantity of each item is 1, and the number of shelves is equal to the number of items
     '''
-    division = random.randint(1, 15)
     number_of_items = random.randint(1, 3)
     shelves = random.sample(range(1, 63), number_of_items)
 
-    def __init__(self):
-        self.divison = Order.division
-        self.shelves = [{shelf: Faker().ean(length=13)} for shelf in Order.shelves]
+    def __init__(self, division, shelves: Union[list, int]):
+        self.division = Order.division
+        self.shelves = shelves
 
     def __repr__(self):
         return f'Divison: {self.division}\nShelf & barcode: {self.shelves}'
@@ -67,11 +67,13 @@ class Tree:
         '''
         return int(log2(number + 1))
 
-    def __init__(self, name):
+    def __init__(self, name: str, order: Order):
         self.name = name
         self.root = Node()
         self.tail = self.root
         self.root.level = 1
+        self.order = order
+        self.current_node = self.root
 
     def getRoot(self):
         return self.root
@@ -116,7 +118,6 @@ class Tree:
                     next_node = current_node.r
                     next_node.parent = current_node
                     # print(f'Added {next_node.number} to the right of {current_node.number}')
-                print()
             next_node.level = self.find_level(self.tail.number)
             next_node.number = self.tail.number + 1
             self.tail = next_node
@@ -202,14 +203,10 @@ costs = [20, 20, 20, 30, 40, 10, 10, 20, 30, 20, 30, 20, 20, 20]
 divisions = Tree('divisions')
 for cost in costs:
     divisions.add(cost)
-# divisions.print_tree()
-# shelves = Tree('shelves')
-# for i in range(63):
-#     shelves.add(1)
-# shelves.print_tree()
 
-print(divisions.ids(15))
-# print(tree.back_track(12))
-# print(tree.find_node(12))
-# root = tree.getRoot()
-# tree.Postorder(root)
+shelves = Tree('shelves')
+for i in range(63):
+    shelves.add(1)
+
+order = Order(division=6, shelves=33)
+
