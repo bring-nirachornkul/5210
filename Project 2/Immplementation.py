@@ -4,6 +4,7 @@ from typing import Union
 from faker import Faker
 
 
+# Question 3
 class Order:
     '''Creates an order from random numbers
 
@@ -18,11 +19,11 @@ class Order:
     shelves = random.sample(range(1, 63), number_of_items)
 
     def __init__(self, division, shelves: Union[list, int]):
-        self.division = Order.division
+        self.division = division
         self.shelves = shelves
 
     def __repr__(self):
-        return f'Divison: {self.division}\nShelf & barcode: {self.shelves}'
+        return f'Divison: {self.division}\nShelves: {self.shelves}'
 
 
 class Node:
@@ -67,12 +68,11 @@ class Tree:
         '''
         return int(log2(number + 1))
 
-    def __init__(self, name: str, order: Order):
+    def __init__(self, name: str):
         self.name = name
         self.root = Node()
         self.tail = self.root
         self.root.level = 1
-        self.order = order
         self.current_node = self.root
 
     def getRoot(self):
@@ -134,16 +134,17 @@ class Tree:
             return path_from_root
         return 'The node number does not exist in the tree'
 
-    def back_track(self, number):
-        '''Returns a back track from a specific node to the tree's root
-
+    def back_track(self):
+        '''Returns a back track from the current node to the tree's root
             Args:
                  number: The node's id
-        '''
+            Returns:
+                the back track path
 
-        if 0 < number <= Tree.count:
-            return self.halves(number)[::-1][1:]
-        return 'The node number does not exist in the tree'
+        '''
+        a_node = self.current_node
+        self.current_node = self.getRoot()
+        return self.halves(a_node.number)[::-1][1:]
 
     def print_tree(self):
         '''Prints a list of all nodes and their respective costs
@@ -173,6 +174,7 @@ class Tree:
                 print(f'parent is {root.parent.number}')
             print()
 
+    # Question 4
     def ids(self, number):
         '''
         This method makes use of iterative deepening search for a specific node
@@ -181,32 +183,65 @@ class Tree:
         if number < self.root.number or number > self.tail.number:
             return f'The node number does not exist in the tree'
         visited = []
-        current_node = self.getRoot()
-        while current_node and current_node.number != number:
-            if current_node.number not in visited:
-                visited.append(current_node.number)
-            if current_node.l and current_node.l.number not in visited:
-                current_node = current_node.l
-            elif current_node.r and current_node.r.number not in visited:
-                current_node = current_node.r
+        while self.current_node and self.current_node.number != number:
+            if self.current_node.number not in visited:
+                visited.append(self.current_node.number)
+            if self.current_node.l and self.current_node.l.number not in visited:
+                self.current_node = self.current_node.l
+            elif self.current_node.r and self.current_node.r.number not in visited:
+                self.current_node = self.current_node.r
             else:
-                current_node = current_node.parent
-        # print(f'Current node after while loop: {current_node.number}')
-        if not current_node or current_node.number != number:
+                self.current_node = self.current_node.parent
+        # print(f'Current node after while loop: {self.current_node.number}')
+        if not self.current_node or self.current_node.number != number:
             return f'The node number {number} could not be found'
         else:
-            visited.append(current_node.number)
+            visited.append(self.current_node.number)
         return visited
+
+    def go_to_division(self, order: Order):
+        return self.ids(order.division)
+
+    def go_to_shelves(self, order: Order):
+        if isinstance(order.shelves, list):
+            paths = [self.ids(shelf) for shelf in order.shelves]
+        else:
+            paths = self.ids(order.shelves)
+        return paths
 
 
 costs = [20, 20, 20, 30, 40, 10, 10, 20, 30, 20, 30, 20, 20, 20]
-divisions = Tree('divisions')
+tree = Tree('divisions')
 for cost in costs:
-    divisions.add(cost)
+    tree.add(cost)
 
-shelves = Tree('shelves')
-for i in range(63):
-    shelves.add(1)
+sub_tree = Tree('shelves')
+for i in range(1, 63):
+    sub_tree.add(1)
+# sub_tree.print_tree()
 
-order = Order(division=6, shelves=33)
+# Question 5
+# trial_order = Order(division=6, shelves=33)
+# print(f'Trial oder: divison = {trial_order.division}, shelf = {trial_order.shelves}')
+# division_path = tree.go_to_division(trial_order)
+# shelf_path = sub_tree.go_to_shelves(trial_order)
+# print(f'Path to division: {division_path}, length = {len(division_path)}')
+# print(f'Path to shelf: {shelf_path}, length = {len(shelf_path)}')
+# tree.current_node = tree.getRoot()
+# sub_tree.current_node = sub_tree.getRoot()
 
+# Question 6
+orders = [Order(division=random.randint(1, tree.tail.number),
+                shelves=random.sample(range(1, tree.tail.number), random.randint(1, 3))) for _ in range(100)]
+for index, order in enumerate(orders[:5], 1):
+    print(f'Order {index}')
+    print(order)
+    print(f'The path to division {order.division} from division {tree.current_node.number}:', end=' ')
+    division_path = tree.go_to_division(order)
+    shelf_paths = sub_tree.go_to_shelves(order)
+    back_track = sub_tree.back_track()
+    print(f'{division_path}, length = {len(division_path)}')
+    for shelf_path in shelf_paths:
+        print(f'The path to shelf {shelf_path[-1]}: {shelf_path}, length = {len(shelf_path)}')
+    print(f'The back track path to the entrance of division {order.division} from shelf {sub_tree.current_node.number}: {back_track}, length = {len(back_track)}')
+    print()
