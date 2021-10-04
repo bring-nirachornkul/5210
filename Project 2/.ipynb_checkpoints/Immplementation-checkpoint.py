@@ -9,8 +9,9 @@ class Order:
     '''Creates an order from random numbers
 
     Args:
-        division: The division goal
-        shelves: All shelves that need to be visited
+        divivion: The high of random range of division
+        items ordered: The high of random range of the quantity of items ordered
+        shelf: The high of random range of the quantity of shelves
     Assumption:
         The quantity of each item is 1, and the number of shelves is equal to the number of items
     '''
@@ -216,8 +217,6 @@ for cost in costs:
 sub_tree = Tree('shelves')
 for i in range(1, 63):
     sub_tree.add(1)
-
-
 # sub_tree.print_tree()
 
 # Question 5
@@ -244,7 +243,6 @@ def return_shortest_path(a, b):
         a = sub_list if len(a) > len(sub_list) else a
     return a
 
-
 def return_longest_path(a, b):
     '''Returns the longest path between a and b
 
@@ -257,7 +255,6 @@ def return_longest_path(a, b):
     for sub_list in b:
         a = a if len(a) > len(sub_list) else sub_list
     return a
-
 
 total_orders = 100
 orders = [Order(division=random.randint(1, tree.tail.number),
